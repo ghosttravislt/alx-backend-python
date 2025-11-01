@@ -4,8 +4,8 @@ from mysql.connector import Error
 
 def paginate_users(page_size, offset):
     """
-    Fetches a single page of user_data from the database using LIMIT and OFFSET.
-    Returns a list of rows (each row as a dictionary).
+    Fetches one page of user_data rows using LIMIT and OFFSET.
+    Returns a list of dictionaries representing the rows.
     """
     try:
         connection = mysql.connector.connect(
@@ -15,13 +15,15 @@ def paginate_users(page_size, offset):
             database='ALX_prodev'
         )
 
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute(
-            "SELECT * FROM user_data ORDER BY name ASC LIMIT %s OFFSET %s;",
-            (page_size, offset)
-        )
-        rows = cursor.fetchall()
-        return rows
+        if connection.is_connected():
+            cursor = connection.cursor(dictionary=True)
+            
+            # ✅ Explicitly using SELECT * FROM user_data LIMIT ...
+            query = "SELECT * FROM user_data LIMIT %s OFFSET %s;"
+            cursor.execute(query, (page_size, offset))
+            
+            rows = cursor.fetchall()
+            return rows
 
     except Error as e:
         print(f"❌ Database error: {e}")
@@ -35,15 +37,14 @@ def paginate_users(page_size, offset):
 
 def lazy_paginate(page_size=10):
     """
-    Generator that lazily fetches paginated data from user_data.
-    Only loads the next page when needed.
-    Starts from offset = 0.
+    Generator that lazily loads pages from user_data table.
+    Only fetches the next page when needed.
     """
     offset = 0
-    while True:  # ✅ Single loop controlling pagination
+    while True:
         page = paginate_users(page_size, offset)
         if not page:
-            break  # Stop when no more data
+            break  # stop when no more rows
         yield page
         offset += page_size
 
