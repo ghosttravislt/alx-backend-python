@@ -85,7 +85,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Start patching requests.get and set side_effects to return fixture payloads."""
-        cls.get_patcher = patch('client.requests.get')
+        cls.get_patcher = patch('requests.get')
         mocked_get = cls.get_patcher.start()
 
         # side_effect function returns a mock whose .json() returns the right payload
