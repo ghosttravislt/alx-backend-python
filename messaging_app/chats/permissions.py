@@ -1,18 +1,22 @@
-from rest_framework.permissions import BasePermission
+from rest_framework import permissions
 
-class IsOwner(BasePermission):
+class IsOwner(permissions.BasePermission):
     """
-    Allows access only to the owner of the object.
-    Example: A user can only view their own messages or conversations.
+    Custom permission: Users can access ONLY their own messages
+    and conversations.
     """
 
     def has_object_permission(self, request, view, obj):
-        # If message has sender or receiver fields:
+        user = request.user
+
+        # --- For Message model ---
+        # If your Message model has sender and receiver fields
         if hasattr(obj, "sender") and hasattr(obj, "receiver"):
-            return obj.sender == request.user or obj.receiver == request.user
-        
-        # For conversation objects with participants:
+            return obj.sender == user or obj.receiver == user
+
+        # --- For Conversation model ---
+        # If Conversation has many-to-many participants
         if hasattr(obj, "participants"):
-            return request.user in obj.participants.all()
+            return user in obj.participants.all()
 
         return False
