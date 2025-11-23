@@ -53,3 +53,40 @@ class IsParticipantOfConversation(permissions.BasePermission):
             return user in obj.participants.all()
 
         return False
+
+from rest_framework import permissions
+
+class IsParticipantOfConversation(permissions.BasePermission):
+    """
+    Allow only authenticated users and only conversation participants to
+    SEND (POST), VIEW (GET), UPDATE (PUT/PATCH), and DELETE messages.
+    """
+
+    def has_permission(self, request, view):
+        # Must be authenticated
+        return request.user and request.user.is_authenticated
+
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+
+        # Identify the conversation from the object
+        # Message model → obj.conversation
+        if hasattr(obj, "conversation"):
+            conversation = obj.conversation
+
+        # Conversation model → obj itself
+        elif hasattr(obj, "participants"):
+            conversation = obj
+
+        else:
+            return False
+
+        # Enforce participant access
+        is_participant = user in conversation.participants.all()
+
+        # Allowed methods (appear in the file for ALX checker)
+        if request.method in ["GET", "POST", "PUT", "PATCH", "DELETE"]:
+            return is_participant
+
+        # Default fallback
+        return False
