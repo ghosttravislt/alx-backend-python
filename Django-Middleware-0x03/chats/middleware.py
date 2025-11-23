@@ -113,7 +113,7 @@ class OffensiveLanguageMiddleware:
 
 from django.http import HttpResponseForbidden
 
-class RolePermissionMiddleware:
+class RolepermissionMiddleware:
     """
     Middleware that restricts access to specific actions based on user role.
     Only users with role 'admin' or 'moderator' are allowed.
@@ -123,10 +123,10 @@ class RolePermissionMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Define protected paths (customize as needed)
+        # Define protected paths
         protected_paths = [
-            "/chats/delete/",    # Example: deleting a message
-            "/chats/admin/",     # Any admin-only endpoints
+            "/chats/delete/",    # Example endpoint
+            "/chats/admin/",     # Admin-only endpoints
         ]
 
         # Check if request path is protected
@@ -136,10 +136,10 @@ class RolePermissionMiddleware:
             if not user or not user.is_authenticated:
                 return HttpResponseForbidden("You must be logged in to perform this action.")
 
-            # Assuming user model has 'role' attribute
+            # Check role
             if getattr(user, "role", "").lower() not in ["admin", "moderator"]:
                 return HttpResponseForbidden("You do not have permission to perform this action.")
 
-        # Proceed with request
+        # Proceed normally
         response = self.get_response(request)
         return response
