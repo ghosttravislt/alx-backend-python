@@ -1,0 +1,13 @@
+base_url = http://127.0.0.1:8000/api
+
+POST {{base_url}}/token/
+
+POST {{base_url}}/conversations/
+
+POST {{base_url}}/conversations/{{conversation_id}}/messages/
+
+GET {{base_url}}/conversations/{{conversation_id}}/messages/?page=1
+
+GET {{base_url}}/conversations/
+
+GET {{base_url}}/conversations/
